@@ -2,7 +2,6 @@
 ESP32 Humidity Monitoring using HTTP (IoT Project)
 # ESP32 Humidity Monitor (HTTP)
 
-# ESP32 Humidity Monitor (HTTP)
 
 ## Description
 This project uses ESP32 to monitor temperature and humidity, display data

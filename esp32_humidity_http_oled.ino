@@ -5,8 +5,8 @@
 #include <Adafruit_SSD1306.h>
 
 /* ================= WIFI CONFIG ================= */
-const char* ssid     = "VNPT CUONG YEN";
-const char* password = "123456789";
+const char* ssid     = "YOUR_WIFI_NAME";
+const char* password = "YOUR_WIFI_PASSWORD";
 
 /* ================= OLED CONFIG ================= */
 #define SCREEN_WIDTH 128

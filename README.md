@@ -1,46 +1,161 @@
 # esp32-humidity-monitor
-ESP32 Humidity Monitoring using HTTP (IoT Project)
-# ESP32 Humidity Monitor (HTTP)
+ESP32 Humidity Monitoring using MQTT (IoT Project)
 
+# esp32-humidity-monitor
 
-## Description
-This project uses ESP32 to monitor temperature and humidity, display data
-locally on an OLED screen, and send sensor data to a server using HTTP
-for IoT dashboard visualization.
+ESP32 Temperature & Humidity Monitoring using **MQTT** (IoT Project)
 
-## Features
-- Read temperature & humidity using AHT30 sensor
-- Display real-time data on OLED (SSD1306)
-- Automatic humidity threshold control with hysteresis
-- Cooling fan control via relay (external power supply)
-- Visual and sound alerts using LED and buzzer
-- Send sensor data to server via HTTP (JSON format)
-- Data visualization on Node-RED dashboard
+---
 
-## Technology
-- ESP32
-- HTTP
-- OLED (SSD1306)
-- Relay module (fan control)
-- Node-RED dashboard
+## 📌 Description
+This project implements an **ESP32-based temperature and humidity monitoring system**
+using the **MQTT protocol** for data communication and **Node-RED Dashboard** for
+real-time visualization.
 
-## System Overview
-The ESP32 continuously reads temperature and humidity values from the
-AHT30 sensor. Measured data is shown on an OLED display and periodically
-sent to a server using HTTP in JSON format.
+The ESP32 reads temperature and humidity data from an **AHT30 sensor**, displays
+information locally on an **OLED screen**, and publishes the data to an **MQTT broker**.
+Node-RED subscribes to the MQTT topic and visualizes the data on a web dashboard.
 
-When humidity exceeds a predefined threshold, the system automatically
-activates a cooling fan through a relay module, along with LED and
-buzzer alerts. The cooling fan is powered by an external supply and
-controlled indirectly via relay to ensure electrical isolation and
-system safety.
+The system also supports **alerting and actuator control** (relay, LED, buzzer) when
+humidity exceeds a predefined threshold.
 
-Collected data is visualized on a Node-RED dashboard for monitoring
-and analysis.
+---
 
-## Note
-This project was developed as part of the Embedded & IoT coursework.
-The system architecture is designed to be simple, stable, and suitable
-for small-scale IoT applications. The current implementation focuses on
-HTTP-based communication for reliability and ease of deployment.
+## 🧠 System Architecture
+AHT30 Sensor
+↓
+ESP32
+↓ (MQTT Publish)
+MQTT Broker
+↓ (MQTT Subscribe)
+Node-RED
+↓
+Web Dashboard
+
+yaml
+Copy code
+
+---
+
+## 🔧 Hardware Components
+- ESP32 DevKit V1
+- **AHT30 Temperature & Humidity Sensor (I2C)**
+- OLED SSD1306 Display (I2C)
+- Relay Module (fan / device control)
+- LED + resistor
+- Buzzer
+- Breadboard & jumper wires
+
+---
+
+## 🧩 Software & Technologies
+- Arduino IDE
+- **MQTT protocol (Publish / Subscribe)**
+- Node-RED
+- PubSubClient (MQTT client for ESP32)
+- ArduinoJson
+- Adafruit AHTX0 Library
+- Adafruit SSD1306 Library
+
+---
+
+## 📡 MQTT Communication
+### MQTT Broker
+- Local MQTT Broker (running together with Node-RED)
+
+### MQTT Topic
+esp32/humidity_monitor:
+
+### MQTT Payload (JSON)
+```json
+{
+  "temperature": 28.6,
+  "humidity": 71.8,
+  "alert": true
+}
+⚙️ System Operation
+ESP32 connects to the configured Wi-Fi network.
+
+ESP32 establishes a connection with the MQTT broker.
+
+Temperature and humidity are read from the AHT30 sensor.
+
+Humidity is compared against a predefined threshold.
+
+Sensor data is published to the MQTT topic in JSON format.
+
+Node-RED subscribes to the topic and updates the dashboard in real time.
+
+When humidity exceeds the threshold:
+
+Relay is activated
+
+LED is turned on
+
+Buzzer is triggered as an alert
+
+📊 Node-RED Dashboard
+The Node-RED dashboard displays:
+
+🌡️ Temperature (°C)
+
+💧 Humidity (%)
+
+🚨 Alert status
+
+📈 Real-time charts
+
+▶️ How to Run the Project
+1️⃣ ESP32 Setup
+Open the .ino file in Arduino IDE.
+
+Configure:
+
+Wi-Fi SSID and password
+
+MQTT broker IP address
+
+Select board: DOIT ESP32 DEVKIT V1
+
+Upload the code to ESP32.
+
+2️⃣ Node-RED Setup:
+
+node-red
+Import the Node-RED MQTT flow.
+
+Deploy the flow.
+
+Open the dashboard:
+
+http://<NodeRED_IP>:1880/ui
+📂 Repository Structure
+Copy code
+.
+├── esp32_humidity_mqtt_oled.ino
+├── README.md
+🧪 Results
+Stable MQTT communication between ESP32 and Node-RED.
+
+Real-time temperature and humidity visualization.
+
+Correct alert triggering when humidity exceeds the threshold.
+
+System runs independently once ESP32 is powered.
+
+🚀 Future Improvements
+Store sensor data in a database (InfluxDB).
+
+Allow threshold configuration from the dashboard.
+
+Use a cloud MQTT broker (HiveMQ / EMQX).
+
+Support multiple ESP32 sensor nodes.
+
+👥 Team Members
+Đinh Việt Kỳ – Hardware & ESP32 Firmware
+
+Nguyễn Lâm Bảo Thạch – IoT Flow & Dashboard
+
+Hoàng Ngọc Minh – Documentation & Presentation
 

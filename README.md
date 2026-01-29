@@ -18,16 +18,8 @@ humidity exceeds a predefined threshold.
 ---
 
 ## 🧠 System Architecture
-AHT30 Sensor
-↓
-ESP32
-↓ (MQTT Publish)
-MQTT Broker
-↓ (MQTT Subscribe)
-Node-RED
-↓
-Web Dashboard
 
+AHT30 Sensor -> ESP32 -> MQTT Broker -> Node-RED -> Web Dashboard.
 
 ---
 

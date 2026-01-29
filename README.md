@@ -19,7 +19,8 @@ humidity exceeds a predefined threshold.
 
 ## 🧠 System Architecture
 
-AHT30 Sensor -> ESP32 -> MQTT Broker -> Node-RED -> Web Dashboard.
+AHT30 Sensor ->      ESP32     ->       MQTT Broker     -> Node-RED -> Web Dashboard.
+                ((MQTT Publish)      ((MQTT Subscribe)
 
 ---
 
@@ -120,7 +121,10 @@ Copy code
 .
 ├── esp32_humidity_mqtt_oled.ino
 ├── README.md
-🧪 Results
+
+```
+##🧪 Results
+
 Stable MQTT communication between ESP32 and Node-RED.
 
 Real-time temperature and humidity visualization.
@@ -129,7 +133,8 @@ Correct alert triggering when humidity exceeds the threshold.
 
 System runs independently once ESP32 is powered.
 
-🚀 Future Improvements
+##🚀 Future Improvements
+
 Store sensor data in a database (InfluxDB).
 
 Allow threshold configuration from the dashboard.
@@ -138,10 +143,12 @@ Use a cloud MQTT broker (HiveMQ / EMQX).
 
 Support multiple ESP32 sensor nodes.
 
-👥 Team Members
+##👥 Team Members
+
 Đinh Việt Kỳ – Hardware & ESP32 Firmware
 
 Nguyễn Lâm Bảo Thạch – IoT Flow & Dashboard
 
 Hoàng Ngọc Minh – Documentation & Presentation
+
 

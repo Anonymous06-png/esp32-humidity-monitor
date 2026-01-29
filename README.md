@@ -1,8 +1,4 @@
 # esp32-humidity-monitor
-ESP32 Humidity Monitoring using MQTT (IoT Project)
-
-# esp32-humidity-monitor
-
 ESP32 Temperature & Humidity Monitoring using **MQTT** (IoT Project)
 
 ---

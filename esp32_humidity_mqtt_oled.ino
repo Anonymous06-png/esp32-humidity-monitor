@@ -1,12 +1,19 @@
 #include <Wire.h>
 #include <WiFi.h>
-#include <HTTPClient.h>
+#include <PubSubClient.h>
 #include <Adafruit_AHTX0.h>
 #include <Adafruit_SSD1306.h>
+#include <ArduinoJson.h>
 
 /* ================= WIFI CONFIG ================= */
 const char* ssid     = "YOUR_WIFI_NAME";
 const char* password = "YOUR_WIFI_PASSWORD";
+
+/* ================= MQTT CONFIG ================= */
+const char* mqtt_server = "YOUR_IP";  // IP máy chạy Node-RED
+const int mqtt_port = 1883;
+const char* mqtt_topic = "esp32/humidity_monitor";
+const char* mqtt_client_id = "ESP32_HumidityMonitor";
 
 /* ================= OLED CONFIG ================= */
 #define SCREEN_WIDTH 128
@@ -25,7 +32,25 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 /* ================= GLOBAL OBJECT ================= */
 Adafruit_AHTX0 aht;
+WiFiClient espClient;
+PubSubClient mqttClient(espClient);
 bool systemActive = false;
+
+/* ================= MQTT RECONNECT ================= */
+void reconnectMQTT() {
+  while (!mqttClient.connected()) {
+    Serial.print("Connecting to MQTT...");
+    
+    if (mqttClient.connect(mqtt_client_id)) {
+      Serial.println("Connected!");
+    } else {
+      Serial.print("Failed, rc=");
+      Serial.print(mqttClient.state());
+      Serial.println(" Retry in 5s...");
+      delay(5000);
+    }
+  }
+}
 
 /* ================= SETUP ================= */
 void setup() {
@@ -78,24 +103,34 @@ void setup() {
   Serial.println("\nWiFi connected");
   Serial.print("IP: ");
   Serial.println(WiFi.localIP());
+
+  /* ===== MQTT SETUP ===== */
+  mqttClient.setServer(mqtt_server, mqtt_port);
+  reconnectMQTT();
 }
 
 /* ================= LOOP ================= */
 void loop() {
+  // Check MQTT connection
+  if (!mqttClient.connected()) {
+    reconnectMQTT();
+  }
+  mqttClient.loop();
+
   sensors_event_t humidity, temperature;
   aht.getEvent(&humidity, &temperature);
 
   float humi = humidity.relative_humidity;
   float temp = temperature.temperature;
 
-  /* ===== HYSTERESIS ===== */
+  /* ===== HYSTERESIS (LOGIC CŨ - GIỮ NGUYÊN) ===== */
   if (!systemActive && humi >= HUMI_ON) {
     systemActive = true;
   } else if (systemActive && humi <= HUMI_OFF) {
     systemActive = false;
   }
 
-  /* ===== OUTPUT ===== */
+  /* ===== OUTPUT (LOGIC CŨ - GIỮ NGUYÊN) ===== */
   digitalWrite(RELAY_PIN, systemActive ? HIGH : LOW);
   digitalWrite(LED_PIN, systemActive ? HIGH : LOW);
   digitalWrite(BUZZER_PIN, systemActive ? LOW : HIGH);
@@ -108,26 +143,28 @@ void loop() {
   Serial.print(" % | System: ");
   Serial.println(systemActive ? "ON" : "OFF");
 
-  /* ===== HTTP SEND ===== */
-  if (WiFi.status() == WL_CONNECTED) {
-    HTTPClient http;
-    http.begin("http://httpbin.org/post");
-    http.addHeader("Content-Type", "application/json");
-
-    String json = "{";
-    json += "\"temperature\":" + String(temp, 1) + ",";
-    json += "\"humidity\":" + String(humi, 0) + ",";
-    json += "\"alert\":" + String(systemActive ? 1 : 0);
-    json += "}";
-
-    int httpCode = http.POST(json);
-    Serial.print("HTTP code: ");
-    Serial.println(httpCode);
-
-    http.end();
+  /* ===== MQTT PUBLISH ===== */
+  if (WiFi.status() == WL_CONNECTED && mqttClient.connected()) {
+    // Tạo JSON document
+    StaticJsonDocument<200> doc;
+    doc["temperature"] = round(temp * 10) / 10.0;  // 1 chữ số thập phân
+    doc["humidity"] = round(humi);                  // Làm tròn
+    doc["alert"] = systemActive ? 1 : 0;
+    
+    // Serialize to string
+    char jsonBuffer[200];
+    serializeJson(doc, jsonBuffer);
+    
+    // Publish
+    if (mqttClient.publish(mqtt_topic, jsonBuffer)) {
+      Serial.print("MQTT published: ");
+      Serial.println(jsonBuffer);
+    } else {
+      Serial.println("MQTT publish failed!");
+    }
   }
 
-  /* ===== OLED ===== */
+  /* ===== OLED (LOGIC CŨ - GIỮ NGUYÊN) ===== */
   display.clearDisplay();
 
   display.setTextSize(2);

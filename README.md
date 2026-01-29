@@ -28,8 +28,6 @@ Node-RED
 ↓
 Web Dashboard
 
-yaml
-Copy code
 
 ---
 
